@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
@@ -10,10 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Optional if set via env var
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.post('/api/conversation', async (req, res) => {
+app.post('/api/conversation', async (req: Request, res: Response) => {
   const { prompt } = req.body;
 
   if (!prompt) {
@@ -22,7 +22,7 @@ app.post('/api/conversation', async (req, res) => {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo', // or 'gpt-4o'
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'user',
@@ -31,7 +31,12 @@ app.post('/api/conversation', async (req, res) => {
       ],
     });
 
-    const response = completion.choices[0].message.content;
+    const response = completion.choices[0]?.message?.content;
+    
+    if (!response) {
+      return res.status(500).json({ error: 'No response from OpenAI' });
+    }
+
     res.json({ response });
   } catch (err) {
     console.error('Error from OpenAI:', err);
@@ -39,7 +44,13 @@ app.post('/api/conversation', async (req, res) => {
   }
 });
 
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
 });
