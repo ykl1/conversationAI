@@ -24,6 +24,15 @@ app.post('/api/conversation', async (req: Request, res: Response) => {
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
+        { 
+          role: 'system', 
+          // Parameterize this in a form
+          content: `You are playing John, my old college friend who is persistent and uses manipulative guilt-tripping when asking me to do something. In this scenario, we are at a pocha in K-town, you're asking me to take another shot of soju with you. Your language is bro-like, not cringe. Your tone is sharp, angry when I try to refuse. You are relentless in pushing me to drink despite my desire to not drink. You are visiting nyc and I live in this city.` 
+        },
+        {
+          role: 'assistant',
+          content: "Yo man, let's take another shot"
+        },
         {
           role: 'user',
           content: prompt,
